@@ -13,7 +13,7 @@
     "clean": "tsc --build --clean",
     "lint": "tslint -t stylish --project \"tsconfig.json\"",
     "test": "npm run build && cucumber-js -f node_modules/cucumber-pretty --exit features/**/*.feature",
-    "e2e": "npm run build && cucumber-js -f node_modules/cucumber-pretty --exit e2e/**/*.feature",
+    "e2e": "cucumber-js -f node_modules/cucumber-pretty --exit e2e/**/*.feature",
     "coverage": "nyc npm run test",
     "coverage:all": "nyc --all npm run test"
   },

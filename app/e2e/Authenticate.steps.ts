@@ -7,17 +7,16 @@ let client: RestClient
 let status: number
 
 Given('local api at {string}', (endpoint: string) => {
-  client = new RestClient('api', endpoint)
+  client = new RestClient('api')
 })
 
 When('post {string} with {string}', { timeout: 60 * 1000 }, async (path: string, body: string) => {
-  // try {
-  //   const response = await client.create(path, JSON.parse(body))
-  //   console.log(response)
-  //   status = response.statusCode
-  // } catch (e) {
-  //   status = (<{ statusCode: number, result: object }>e).statusCode
-  // }
+  try {
+    const response = await client.create(path, JSON.parse(body))
+    status = response.statusCode
+  } catch (e) {
+    status = (<{ statusCode: number, result: object }>e).statusCode
+  }
 })
 
 Then('return status {int}', (expectedStatus: number) => {

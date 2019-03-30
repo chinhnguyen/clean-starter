@@ -22,6 +22,7 @@ e.response.sendPromise = function <T>(p: (() => Promise<T>) | Promise<T>): void 
     }
     this.json(res)
   }).catch((err: Error) => {
+    console.log(err)
     this.sendProblem(new InternalServerProblem({
       detail: JSON.stringify(err)
     }))

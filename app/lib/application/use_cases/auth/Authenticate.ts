@@ -1,3 +1,4 @@
+import { isEmpty } from "lodash";
 import { isNullOrUndefined } from "util";
 import { MissingRequiredInputsProblem, Problem, UnauthorizedProblem } from "../../../domain/entities/Problem";
 import { IUserRepository } from "../../repositories/IUserRepository";
@@ -17,7 +18,7 @@ export default class Authenticate {
 
   public async execute(email: string, password: string): Promise<string | Problem> {
     // tslint:disable-next-line: possible-timing-attack
-    if (email === "" || password === "") {
+    if (isEmpty(email) || isEmpty(password)) {
       return new MissingRequiredInputsProblem
     }
 

@@ -5,7 +5,6 @@ import { isEmpty } from 'lodash';
 import { resolve } from "../../../domain/container/Container";
 import { ForbiddenProblem, Problem } from "../../../domain/entities/Problem";
 import AuthController from "../../../interfaces/controllers/AuthController";
-// import { resolveToken, ResolveTokenResult } from '../../../../services/AuthService';
 
 /**
  * Role based authentication, user is taken from request token.
