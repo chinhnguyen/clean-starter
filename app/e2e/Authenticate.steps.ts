@@ -7,7 +7,7 @@ let client: RestClient
 let status: number
 
 Given('local api at {string}', (endpoint: string) => {
-  client = new RestClient('api')
+  client = new RestClient('api', endpoint)
 })
 
 When('post {string} with {string}', { timeout: 60 * 1000 }, async (path: string, body: string) => {
