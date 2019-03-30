@@ -1,0 +1,6 @@
+tests/*
+*.feature
+*.ts
+*.js.map
+features/*
+e2e/*

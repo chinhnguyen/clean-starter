@@ -1,0 +1,41 @@
+/**
+ * This starter project recommended using Microsoft TSLint rules.
+ * Please see https://github.com/Microsoft/tslint-microsoft-contrib for more details.
+ */
+{
+  "extends": [
+    "tslint-microsoft-contrib",
+    "tslint-config-prettier",
+    "tslint-no-unused-expression-chai"
+  ],
+  "rules": {
+    "no-function-constructor-with-string-args": false,
+    "no-reserved-keywords": false,
+    "no-increment-decrement": false,
+    "no-unnecessary-bind": false,
+    "function-constructor": true,
+    "variable-name": true,
+    "increment-decrement": true,
+    "unnecessary-bind": true,
+    "no-console": false,
+    "no-relative-imports": false,
+    "newline-before-return": false,
+    "interface-name": false,
+    "chai-vague-errors": false,
+    "no-suspicious-comment": false,
+    "no-default-export": false, // we need this for awilix to work
+    "completed-docs": false, // Maybe another time
+    "file-name-casing": [
+      true,
+      "pascal-case"
+    ],
+    "typedef": [
+      true,
+      "call-signature",
+      "arrow-call-signature",
+      "parameter",
+      "property-declaration",
+      "member-variable-declaration"
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "exclude": [
+    "**/*.steps.js"
+  ], 
+  "reporter": [
+    "html",
+    "text"
+  ]
+}
