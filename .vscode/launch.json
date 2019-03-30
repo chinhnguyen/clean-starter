@@ -1,0 +1,60 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Local Server",
+      "runtimeExecutable": "nodemon",
+      "runtimeVersion": "8.15.0",
+      "cwd": "${workspaceRoot}/app",
+      "program": "${workspaceFolder}/app/Local.js",
+      "restart": true,
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "name": "Attach to SAM CLI",
+      "type": "node",
+      "request": "attach",
+      "address": "localhost",
+      "port": 5858,
+      // From the sam init example, it would be "${workspaceRoot}/hello_world"
+      "localRoot": "${workspaceRoot}/app",
+      "remoteRoot": "/var/task",
+      "protocol": "inspector",
+      "stopOnEntry": false
+    },
+    {
+      "name": "Test All",
+      "cwd": "${workspaceRoot}/app",
+      "type": "node",
+      "runtimeVersion": "8.15.0",
+      "request": "launch",
+      "console": "integratedTerminal",
+      "program": "${workspaceRoot}/app/node_modules/cucumber/bin/cucumber-js",
+      "args": [
+        "-f",
+        "node_modules/cucumber-pretty",
+        "--exit",
+        "**/features/*.feature",
+        "**/features/**/*.feature"
+      ]
+    },
+    {
+      "name": "Test Current Feature",
+      "cwd": "${workspaceRoot}/app",
+      "type": "node",
+      "runtimeVersion": "8.15.0",
+      "request": "launch",
+      "console": "integratedTerminal",
+      "program": "${workspaceRoot}/app/node_modules/cucumber/bin/cucumber-js",
+      "args": [
+        "-f",
+        "node_modules/cucumber-pretty",
+        "--exit",
+        "${workspaceRoot}/${relativeFile}"
+      ]
+    }
+  ]
+}
