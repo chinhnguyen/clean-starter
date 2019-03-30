@@ -1,10 +1,10 @@
 {
   "staging": {
-    "key": "+*j:<\\6SRXL^Lu%d",
+    "key": "5VRycwWs3pHjF3qQ",
     "expiresIn": "2d"
   },
   "production": {
-    "host": "ZWbK5HNxJWaNzJgX",
+    "host": "DhR8PT2N4wvmuQGm",
     "expiresIn": "2d"
   }
 }
