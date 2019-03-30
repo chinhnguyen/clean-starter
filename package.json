@@ -1,0 +1,25 @@
+{
+  "name": "clean-starter-aws",
+  "version": "1.0.0",
+  "description": "Clean Architechture Lambda Starter Project",
+  "repository": "https://github.com/chinhnguyen/clean-starter",
+  "author": "Chinh Nguyen",
+  "license": "MIT",
+  "scripts": {
+    "compile": "cd app && npm run build && cd ..",
+    "create-s3": "aws s3 mb s3://$npm_package_name-staging",
+    "create-s3:prod": "aws s3 mb s3://$npm_package_name-production",
+    "build": "npm run compile && sam build --use-container --skip-pull-image",
+    "package": "sam package --s3-bucket $npm_package_name-staging --output-template-file packaged.yaml",
+    "package:prod": "sam package --s3-bucket $npm_package_name-production --output-template-file packaged.yaml",
+    "deploy": "sam deploy --template-file packaged.yaml --stack-name $npm_package_name-staging --capabilities CAPABILITY_IAM --parameter-overrides Stage=staging",
+    "deploy:prod": "sam deploy --template-file packaged.yaml --stack-name $npm_package_name-production --capabilities CAPABILITY_IAM --parameter-overrides Stage=production",
+    "install": "npm run build && npm run package && npm run deploy",
+    "install:prod": "npm run build && npm run package:prod && npm run deploy:prod",
+    "uninstall": "aws cloudformation delete-stack --stack-name $npm_package_name-staging",
+    "uninstall:prod": "aws cloudformation delete-stack --stack-name $npm_package_name-production",
+    "api": "sam local start-api --profile default --skip-pull-image --parameter-overrides 'ParameterKey=Stage,ParameterValue=staging'",
+    "api:prod": "sam local start-api --profile default --skip-pull-image --parameter-overrides 'ParameterKey=Stage,ParameterValue=production'",
+    "generate-event": "sam local generate-event apigateway aws-proxy"
+  }
+}

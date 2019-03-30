@@ -1,0 +1,40 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+    Clean Architecture Lambda Starter Kit.
+
+Parameters:
+    Stage:
+        Type: String
+
+Globals:
+    Api:
+        Cors:
+            AllowOrigin: "'*'"
+            AllowHeaders: "'*'"
+
+Resources:
+    StarterKitHandler:
+        Type: AWS::Serverless::Function
+        Description: >
+            Handler of Starter Kit application.
+        Properties:
+            CodeUri: app/
+            Handler: Lambda.handler
+            Runtime: nodejs8.10
+            Timeout: 180
+            FunctionName: !Sub "StarterKitHandler-${Stage}"
+            Environment:
+                Variables:
+                    STAGE: !Ref Stage
+            Events:
+                ProxyApiRoot:
+                    Type: Api
+                    Properties:
+                        Path: /
+                        Method: ANY
+                ProxyApiGreedy:
+                    Type: Api
+                    Properties:
+                        Path: /{proxy+}
+                        Method: ANY
