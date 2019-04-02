@@ -91,6 +91,61 @@ In case you want to watch for changes without the need of stopping/starting the 
 
 ```npm run test```
 
+```bash
+> clean-starter@1.0.0 test /Users/ntr9h/Projects/clean-starter/app
+> npm run build && cucumber-js -f node_modules/cucumber-pretty --exit features/**/*.feature
+
+
+> clean-starter@1.0.0 build /Users/ntr9h/Projects/clean-starter/app
+> tsc
+
+Feature: Authenticate user using username and password
+
+  Scenario: empty email
+    When authenticate with email "" and password "any"
+    Then return Bad Request Problem
+
+  Scenario: empty password
+    When authenticate with email "any" and password ""
+    Then return Bad Request Problem
+
+  Scenario: invalid credential
+    Given invalid credential
+    When authenticate with email "any" and password "any"
+    Then return Unauthorized Problem
+
+  Scenario: user to auth response mapping
+    Given User JSON '{"id":"any-id","email":"any@email","name":"Any Name"}'
+    When authenticate with email "any" and password "any"
+    Then return token having id of "any-id"
+
+Feature: Authenticate user using token
+
+  Scenario: empty token
+    When resolve token ""
+    Then return Forbidden Problem
+
+  Scenario: invalid token
+    When resolve token "anything"
+    Then return Forbidden Problem
+
+  Scenario: valid token of not existing user
+    Given valid token
+    But token could not be resolved to a user
+    When resolve token "anything"
+    Then return Forbidden Problem
+
+  Scenario: valid token of existing merchant
+    Given valid token
+    And token resolved to an existing user
+    When resolve token "anything"
+    Then return the matching user
+
+8 scenarios (8 passed)
+22 steps (22 passed)
+0m00.013s
+```
+
 ### Run BDD test features with code coverage
 
 ```npm run coverage```
