@@ -48,6 +48,7 @@ Behavior Driven Development is applied as well with ready baked script for commo
 ```
 
 The ```app/lib``` folder contains all the implementation of the application which follows the Clean Architecture design as below image
+
 ![clean architecture layer diagram](http://blog.cleancoder.com/uncle-bob/images/2012-08-13-the-clean-architecture/CleanArchitecture.jpg)
 
 ## Requirements
@@ -222,6 +223,10 @@ Several resources are created during installation with format ```<package_name>-
 1. S3 buckets ```clean-starter-aws-staging``` and ```clean-starter-aws-production```
 1. SAM uses [CloudFormation](https://aws.amazon.com/cloudformation/) to manage resources. Thus to see the created resources, login to your AWS CloudFormation management and open the item with name ```clean-starter-aws-staging```
 
+
+## TODO
+1. Clean Architecture Analysis
+1. Sample fetching data with resolve token
 
 ## References
 1. Clean Architecture - http://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html 
