@@ -4,7 +4,7 @@ Starter project for Serverless Restful API application using AWS Lambda, API Gat
 
 Behavior Driven Development is applied as well with ready baked script for common actions: build, test, deploy, undeploy, test with code coverage, end-to-end testing.
 
-## Folder Strucsture
+## Folder Structure
 
 ```bash
 .
@@ -46,6 +46,9 @@ Behavior Driven Development is applied as well with ready baked script for commo
 ├── template.yaml               <-- SAM template
 
 ```
+
+The ```app/lib``` folder contains all the implementation of the application which follows the Clean Architecture design as below image
+![clean architecture layer diagram](http://blog.cleancoder.com/uncle-bob/images/2012-08-13-the-clean-architecture/CleanArchitecture.jpg)
 
 ## Requirements
 
