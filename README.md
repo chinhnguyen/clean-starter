@@ -150,6 +150,22 @@ Feature: Authenticate user using token
 
 ```npm run coverage```
 
+```bash
+----------------------------|----------|----------|----------|----------|-------------------|
+File                        |  % Stmts | % Branch |  % Funcs |  % Lines | Uncovered Line #s |
+----------------------------|----------|----------|----------|----------|-------------------|
+All files                   |       86 |      100 |    71.43 |       86 |                   |
+ application/use_cases/auth |      100 |      100 |      100 |      100 |                   |
+  Authenticate.ts           |      100 |      100 |      100 |      100 |                   |
+  ResolveToken.ts           |      100 |      100 |      100 |      100 |                   |
+ domain/entities            |    78.26 |      100 |    66.67 |    78.26 |                   |
+  Problem.ts                |    76.19 |      100 |     62.5 |    76.19 |    27,41,42,46,47 |
+  User.ts                   |      100 |      100 |      100 |      100 |                   |
+ interfaces/security        |    71.43 |      100 |    66.67 |    71.43 |                   |
+  JwtProvider.ts            |    71.43 |      100 |    66.67 |    71.43 |             20,23 |
+----------------------------|----------|----------|----------|----------|-------------------|
+```
+
 ### Run BDD End-to-end test features
 
 ```npm run e2e```
