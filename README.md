@@ -1,209 +1,229 @@
-# Kiolyn Serverless
+# Clean Architect NodeJS/ExpressJS Serverless with AWS Lambda
 
-Serverless backend application for Kiolyn.
+Starter project for Serverless Restful API application using AWS Lambda, API Gateway with SAM local, applying Clean Architecture for defining dependencies and structuring code. 
+
+Behavior Driven Development is applied as well with ready baked script for common actions: build, test, deploy, undeploy, test with code coverage, end-to-end testing.
+
+## Folder Strucsture
 
 ```bash
 .
 ├── README.MD                   <-- This instructions file
 ├── app                         <-- Source code for the application
-│   └── app.js                  <-- Lambda function code
-│   └── package.json            <-- NodeJS dependencies and scripts
+│   └── @types                  <-- TypeScript types definitions
+│   │   └── express.d.t         <-- Extension to ExpressJS
+│   └── e2e                     <-- End to end API testing features
+│   └── features                <-- Application testing features
+│   └── lib                     <-- Main application code
+│   │   └── application         <-- Application services
+│   │   │   └── event           <-- Application wide events
+│   │   │   └── repositories    <-- Data access interfaces
+│   │   │   └── security        <-- Security interfaces
+│   │   │   └── use_cases       <-- Application business use cases
+│   │   └── domain              <-- Core business layer
+│   │   │   └── container       <-- Dependency Injection Container
+│   │   │   └── entities        <-- Domain Entities 
+│   │   └── infrastructure      <-- Extension to ExpressJS
+│   │   │   └── config          <-- JSON configurations 
+│   │   │   └── webserver       <-- Web Server (ExpressJS) interfaces
+│   │   │       └── middlewares <-- ExpressJS Middlewares
+│   │   │       └── plugins     <-- ExpressJS Plugins
+│   │   │       └── routers     <-- ExpressJS Routers
+│   │   │       └── Server.ts   <-- ExpressJS Application entry point
+│   │   └── interfaces          <-- Extension to ExpressJS
+│   │   │   └── config          <-- Configuration implementations
+│   │   │   └── container       <-- DI Contaier implementations
+│   │   │   └── controllers     <-- Logic routers
+│   │   │   └── repositories    <-- Data Access implementations
+│   │   │   └── security        <-- Security implementations
+│   │   │   └── serializers     <-- Response serializers 
+│   └── Lambda.ts               <-- Lambda Handler entry point
+│   └── Local.ts                <-- Local development server entry pont
+│   └── package.json            <-- Development scripts
+│   └── tsconfig.json           <-- Typescript config
+│   └── tslint.json             <-- TSLint config
 ├── package.json                <-- SAM scripts
 ├── template.yaml               <-- SAM template
+
 ```
-
-
-------- BELOW ARE NOT VALID
-
 
 ## Requirements
 
-* AWS CLI already configured with Administrator permission
-* [NodeJS 8.10+ installed](https://nodejs.org/en/download/)
+* [SAM installed](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
+* [NodeJS 8.15+ installed](https://nodejs.org/en/download/) - NodeJS 8.15 is currently the highest supported version by Lambda. If you have to run other version then consider installing [NVM](https://github.com/creationix/nvm) as well.
 * [Docker installed](https://www.docker.com/community-edition)
 
-## Setup process
+## Description
 
-### Local development
+The AWS API Gateway is a [Proxy Resourse](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-set-up-simple-proxy.html) which will direct every requests to the Lambda handler which in turn pass to [AWS Serverless Express](https://github.com/awslabs/aws-serverless-express) which acts like a bridge to our ExpressJS application.
 
+Thus, the development of the ExpressJS application is totally the same with developing a normal ExpressJS application.
 
+There are two entry points to the ExpressJS application
+1. ```Lambda.js``` - This is the entry points which setup the AWS Serverless Express and bridge all request from Lambda to ExpressJS application
+1. ```Local.js``` - This is the normal ExpressJS application which can be used for local development or deployed separate if needed
 
-**Invoking function locally using a local sample payload**
+## Development
 
-```bash
-sam local invoke HelloWorldFunction --event event.json
-```
- 
-**Invoking function locally through local API Gateway**
+All development happens inside ```app``` folder.
 
-```bash
-sam local start-api
-```
+### Setup
 
-If the previous command ran successfully you should now be able to hit the following local endpoint to invoke your function `http://localhost:3000/hello`
+1. ```cd app```
+1. Make sure NodeJS 8.15 is the default one (```nvm use 8.15``` if ```nvm``` is being used)
+1. ```npm install```
 
-**SAM CLI** is used to emulate both Lambda and API Gateway locally and uses our `template.yaml` to understand how to bootstrap this environment (runtime, where the source code is, etc.) - The following excerpt is what the CLI will read in order to initialize an API and its routes:
+### Build Typescript
 
-```yaml
-...
-Events:
-    HelloWorld:
-        Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
-        Properties:
-            Path: /hello
-            Method: get
-```
+Run either ```npm run build``` for single time build or ```npm run build:watch``` for watching changes and build.
 
-## Packaging and deployment
+### Run local server
 
-AWS Lambda NodeJS runtime requires a flat folder with all dependencies including the application. SAM will use `CodeUri` property to know where to look up for both application and dependencies:
+```node Local.js```
 
-```yaml
-...
-    HelloWorldFunction:
-        Type: AWS::Serverless::Function
-        Properties:
-            CodeUri: hello-world/
-            ...
-```
+In case you want to watch for changes without the need of stopping/starting the application manually, then consider using [nodemon](https://github.com/remy/nodemon)
 
-Firstly, we need a `S3 bucket` where we can upload our Lambda functions packaged as ZIP before we deploy anything - If you don't have a S3 bucket to store code artifacts then this is a good time to create one:
+### Run BDD test features
 
-```bash
-aws s3 mb s3://BUCKET_NAME
-```
+```npm run test```
 
-Next, run the following command to package our Lambda function to S3:
+### Run BDD test features with code coverage
 
-```bash
-sam package \
-    --output-template-file packaged.yaml \
-    --s3-bucket REPLACE_THIS_WITH_YOUR_S3_BUCKET_NAME
-```
+```npm run coverage```
 
-Next, the following command will create a Cloudformation Stack and deploy your SAM resources.
+### Run BDD End-to-end test features
 
-```bash
-sam deploy \
-    --template-file packaged.yaml \
-    --stack-name sam-app \
-    --capabilities CAPABILITY_IAM
-```
+```npm run e2e```
 
-> **See [Serverless Application Model (SAM) HOWTO Guide](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-quick-start.html) for more details in how to get started.**
+E2E tests expect the RestAPI to be located at ```http://localhost:8080```, this can be changed inside ```app/e2e/Authenticate.ts```
 
-After deployment is complete you can run the following command to retrieve the API Gateway Endpoint URL:
+### AWS Development 
+
+Make sure you are on the project's root and run
+
+```npm run api``` 
+
+this will start the local RestAPI in SAM local development environment.
+
+### AWS Deployment
+
+Make sure you are on the project's root.
+
+#### Build 
+
+Make sure Docker is running then run 
+
+```npm run build```
 
 ```bash
-aws cloudformation describe-stacks \
-    --stack-name sam-app \
-    --query 'Stacks[].Outputs[?OutputKey==`HelloWorldApi`]' \
-    --output table
-``` 
+> clean-starter-aws@1.0.0 build /Users/xxx/Projects/clean-starter
+> npm run compile && sam build --use-container --skip-pull-image
 
-## Fetch, tail, and filter Lambda function logs
 
-To simplify troubleshooting, SAM CLI has a command called sam logs. sam logs lets you fetch logs generated by your Lambda function from the command line. In addition to printing the logs on the terminal, this command has several nifty features to help you quickly find the bug.
+> clean-starter-aws@1.0.0 compile /Users/xxx/Projects/clean-starter
+> cd app && npm run build && cd ..
 
-`NOTE`: This command works for all AWS Lambda functions; not just the ones you deploy using SAM.
 
-```bash
-sam logs -n HelloWorldFunction --stack-name sam-app --tail
+> clean-starter@1.0.0 build /Users/xxx/Projects/clean-starter/app
+> tsc
+
+2019-04-02 09:54:13 Starting Build inside a container
+2019-04-02 09:54:13 Found credentials in shared credentials file: ~/.aws/credentials
+2019-04-02 09:54:14 Building resource 'StarterKitHandler'
+2019-04-02 09:54:14 Requested to skip pulling images ...
+
+2019-04-02 09:54:14 Mounting /Users/xxx/Projects/clean-starter/app as /tmp/samcli/source:ro inside runtime container
+
+Build Succeeded
+
+Built Artifacts  : .aws-sam/build
+Built Template   : .aws-sam/build/template.yaml
+
+Commands you can use next
+=========================
+[*] Invoke Function: sam local invoke
+[*] Package: sam package --s3-bucket <yourbucket>
+    
+Running NodejsNpmBuilder:NpmPack
+Running NodejsNpmBuilder:CopyNpmrc
+Running NodejsNpmBuilder:CopySource
+Running NodejsNpmBuilder:NpmInstall
+Running NodejsNpmBuilder:CleanUpNpmrc
 ```
 
-You can find more information and examples about filtering Lambda function logs in the [SAM CLI Documentation](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-logging.html).
+#### Package
 
-## Testing
+Before packaging, and S3 bucket with name ```clean-starter-aws-staging``` must exist. The bucket can be created by running ```npm run create-s3```.
 
-We use `cucumber` for testing our code and it is already added in `package.json` under `scripts`, so that we can simply run the following command to run our tests:
-
-```bash
-cd hello-world
-npm install
-npm run test
-```
-
-## Cleanup
-
-In order to delete our Serverless Application recently deployed you can use the following AWS CLI Command:
+```npm run package```
 
 ```bash
-aws cloudformation delete-stack --stack-name sam-app
+> clean-starter-aws@1.0.0 package /Users/xxx/Projects/clean-starter
+> sam package --s3-bucket $npm_package_name-staging --output-template-file packaged.yaml
+
+Uploading to fbd4a19af525b693a4f688ad645b0a75  7834591 / 7834591.0  (100.00%)
+Successfully packaged artifacts and wrote output template to file packaged.yaml.
+Execute the following command to deploy the packaged template
+aws cloudformation deploy --template-file /Users/xxx/Projects/clean-starter/packaged.yaml --stack-name <YOUR STACK NAME>
 ```
 
-## Bringing to the next level
+#### Deploy
 
-Here are a few things you can try to get more acquainted with building serverless applications using SAM:
-
-### Learn how SAM Build can help you with dependencies
-
-* Uncomment lines on `app.js`
-* Build the project with ``sam build --use-container``
-* Invoke with ``sam local invoke HelloWorldFunction --event event.json``
-* Update tests
-
-### Create an additional API resource
-
-* Create a catch all resource (e.g. /hello/{proxy+}) and return the name requested through this new path
-* Update tests
-
-### Step-through debugging
-
-* **[Enable step-through debugging docs for supported runtimes]((https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-using-debugging.html))**
-
-Next, you can use AWS Serverless Application Repository to deploy ready to use Apps that go beyond hello world samples and learn how authors developed their applications: [AWS Serverless Application Repository main page](https://aws.amazon.com/serverless/serverlessrepo/)
-
-# Appendix
-
-## Building the project
-
-[AWS Lambda requires a flat folder](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-create-deployment-pkg.html) with the application as well as its dependencies in a node_modules folder. When you make changes to your source code or dependency manifest,
-run the following command to build your project local testing and deployment:
+```npm run deploy```
 
 ```bash
-sam build
+> clean-starter-aws@1.0.0 deploy /Users/xxx/Projects/clean-starter
+> sam deploy --template-file packaged.yaml --stack-name $npm_package_name-staging --capabilities CAPABILITY_IAM --parameter-overrides Stage=staging
+
+Waiting for changeset to be created..
+Waiting for stack create/update to complete
+Successfully created/updated stack - clean-starter-aws-staging
 ```
 
-If your dependencies contain native modules that need to be compiled specifically for the operating system running on AWS Lambda, use this command to build inside a Lambda-like Docker container instead:
-```bash
-sam build --use-container
+#### Install
+
+Run ```npm run install``` to run all the 3 steps above in 1 single call.
+
+#### Uninstall
+
+Run ```npm run uninstall``` to remove all the related resources from AWS.
+
+
+## Configuration
+
+### STAGE
+
+```process.env.STAGE``` can be accessed in code to pick the right configuration for different environment. 
+
+For example: 
+
+```typescript
+import * as cfg from "../../infrastructure/config/jwt.json";
+import IJwtConfig from "../security/IJwtConfig";
+
+export default class JwtConfig implements IJwtConfig {
+  public readonly key: string;
+  public readonly expiresIn: string
+
+  constructor() {
+    Object.assign(this, process.env.STAGE === 'production' ? cfg.production : cfg.staging)
+  }
+}
 ```
 
-By default, this command writes built artifacts to `.aws-sam/build` folder.
+To deal with production environment append ```:prod``` to your script name, for example - to build for production environment run ```npm run build:prod``` or ```npm run install:prod```.
 
-## SAM and AWS CLI commands
+### AWS Resources Name
 
-All commands used throughout this document
+Several resources are created during installation with format ```<package_name>-<environment>```
+1. S3 buckets ```clean-starter-aws-staging``` and ```clean-starter-aws-production```
+1. SAM uses [CloudFormation](https://aws.amazon.com/cloudformation/) to manage resources. Thus to see the created resources, login to your AWS CloudFormation management and open the item with name ```clean-starter-aws-staging```
 
-```bash
-# Invoke function locally with event.json as an input
-sam local invoke HelloWorldFunction --event event.json
 
-# Run API Gateway locally
-sam local start-api
-
-# Create S3 bucket
-aws s3 mb s3://BUCKET_NAME
-
-# Package Lambda function defined locally and upload to S3 as an artifact
-sam package \
-    --output-template-file packaged.yaml \
-    --s3-bucket REPLACE_THIS_WITH_YOUR_S3_BUCKET_NAME
-
-# Deploy SAM template as a CloudFormation stack
-sam deploy \
-    --template-file packaged.yaml \
-    --stack-name sam-app \
-    --capabilities CAPABILITY_IAM
-
-# Describe Output section of CloudFormation stack previously created
-aws cloudformation describe-stacks \
-    --stack-name sam-app \
-    --query 'Stacks[].Outputs[?OutputKey==`HelloWorldApi`]' \
-    --output table
-
-# Tail Lambda function Logs using Logical name defined in SAM Template
-sam logs -n HelloWorldFunction --stack-name sam-app --tail
-```
-
-**NOTE**: Alternatively this could be part of package.json scripts section.
+## References
+1. Clean Architecture - http://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html 
+1. AWS Serverless Application Model - https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-template.html 
+1. Set up a Proxy Integration with a Proxy Resource - https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-set-up-simple-proxy.html
+1. CucumberJS - https://github.com/cucumber/cucumber-js 
+1. IstanbulJS - https://istanbul.js.org/
+1. AWS Serverless Express - https://github.com/awslabs/aws-serverless-express
