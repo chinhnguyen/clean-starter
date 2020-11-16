@@ -13,9 +13,9 @@ router.post('/authenticate', async (request: Request, response: Response) => {
 })
 
 router.post('/request-register', async (request: Request, response: Response) => {
-  const { id, email } = request.body
+  const { email } = request.body
   const controller = resolve<Fido2AuthController>("fido2AuthController")
-  response.sendPromise(controller.requestRegister(id, email))
+  response.sendPromise(controller.requestRegister(email))
 })
 
 router.post('/register', async (request: Request, response: Response) => {

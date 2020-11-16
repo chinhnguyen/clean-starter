@@ -7,14 +7,10 @@
     "preserveConstEnums": true,
     "sourceMap": true,
     "resolveJsonModule": true,
-    "target": "es6",
-    "lib": [
-      "es6"
-    ],
     "outDir": "dist"
   },
   "include": [
-    "**/*.ts", 
+    "**/*.ts",
     "*.ts"
   ],
   "exclude": [

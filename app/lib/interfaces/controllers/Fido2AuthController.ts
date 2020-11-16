@@ -1,5 +1,5 @@
-import { Problem } from "../../domain/entities/Problem";
 import Fido2Authenticate from "../../application/use_cases/auth/Fido2Authenticate";
+import { Problem } from "../../domain/entities/Problem";
 
 export default class Fido2AuthnController {
   private readonly fido2AuthenticateUC: Fido2Authenticate
@@ -10,12 +10,12 @@ export default class Fido2AuthnController {
     this.fido2AuthenticateUC = fido2Authenticate
   }
 
-  public async requestRegister(id: string, email: string): Promise<object | Problem> {
+  public async requestRegister(email: string): Promise<object | Problem> {
 
-    const challengeResponse = await this.fido2AuthenticateUC.requestRegister(id, email)
+    const challengeResponse = await this.fido2AuthenticateUC.requestRegister(email)
 
     if (challengeResponse instanceof Problem) {
-      return {"error": "cannot generate challenge request"}
+      return { "error": "cannot generate challenge request" }
     }
 
     return challengeResponse
@@ -26,7 +26,7 @@ export default class Fido2AuthnController {
     const status = await this.fido2AuthenticateUC.register(credentials)
 
     if (status instanceof Problem) {
-      return {"error": "cannot register"}
+      return { "error": "cannot register" }
     }
 
     return status
@@ -37,7 +37,7 @@ export default class Fido2AuthnController {
     const challengeResponse = await this.fido2AuthenticateUC.login(email)
 
     if (challengeResponse instanceof Problem) {
-      return {"error": "cannot login"}
+      return { "error": "cannot login" }
     }
 
     return challengeResponse
@@ -48,7 +48,7 @@ export default class Fido2AuthnController {
     const status = await this.fido2AuthenticateUC.loginChallenge(credentials)
 
     if (status instanceof Problem) {
-      return {"error": "cannot execute login challenge"}
+      return { "error": "cannot execute login challenge" }
     }
 
     return status

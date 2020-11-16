@@ -1,12 +1,12 @@
 import { IUserRepository } from "../../application/repositories/IUserRepository";
-import { User } from "../../domain/entities/User";
 import { Key } from "../../domain/entities/Key";
+import { User } from "../../domain/entities/User";
 
 const user = new User({
   id: "chinh@willbe.vn",
   email: "chinh@willbe.vn",
   password: "iloveyouman",
-  challenge:"123456"
+  challenge: "123456"
 })
 
 var webAuthenUser = new User({})
@@ -33,8 +33,8 @@ export default class UserRepository implements IUserRepository {
     return undefined
   }
 
-  public async create(id: string, email: string, challenge: string): Promise<User> {
-    webAuthenUser = new User({"id": id, "email": email, "challenge": challenge})
+  public async create(email: string, challenge: string): Promise<User> {
+    webAuthenUser = new User({ "email": email, "challenge": challenge })
     return webAuthenUser
   }
 
