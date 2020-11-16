@@ -1,8 +1,10 @@
+//import { generateLoginChallenge, generateRegistrationChallenge, parseLoginRequest, parseRegisterRequest, verifyAuthenticatorAssertion } from "./../webauthn";
+import { generateLoginChallenge, generateRegistrationChallenge, parseLoginRequest, parseRegisterRequest, verifyAuthenticatorAssertion } from "@webauthn/server";
 import { isEmpty } from "lodash";
 import { isNullOrUndefined } from "util";
 import { MissingRequiredInputsProblem, Problem, UnauthorizedProblem } from "../../../domain/entities/Problem";
 import { IUserRepository } from "../../repositories/IUserRepository";
-import { generateLoginChallenge, generateRegistrationChallenge, parseLoginRequest, parseRegisterRequest, verifyAuthenticatorAssertion } from "./../webauthn";
+
 /**
  * Passwordless authentication with FIDO2 standard 
  */
