@@ -10,9 +10,9 @@ export default class Fido2AuthnController {
     this.fido2AuthenticateUC = fido2Authenticate
   }
 
-  public async requestRegister(email: string): Promise<object | Problem> {
+  public async generateRegisterChallenge(email: string): Promise<object | Problem> {
 
-    const challengeResponse = await this.fido2AuthenticateUC.requestRegister(email)
+    const challengeResponse = await this.fido2AuthenticateUC.generateAttestationOptions(email)
 
     if (challengeResponse instanceof Problem) {
       return { "error": "cannot generate challenge request" }
@@ -21,9 +21,9 @@ export default class Fido2AuthnController {
     return challengeResponse
   }
 
-  public async register(credentials: any): Promise<object | Problem> {
+  public async validateRegisterAttestation(attestation: any): Promise<object | Problem> {
 
-    const status = await this.fido2AuthenticateUC.register(credentials)
+    const status = await this.fido2AuthenticateUC.validateAttestation(attestation)
 
     if (status instanceof Problem) {
       return { "error": "cannot register" }
@@ -32,9 +32,9 @@ export default class Fido2AuthnController {
     return status
   }
 
-  public async login(email: string): Promise<object | Problem> {
+  public async generateLoginChallenge(email: string): Promise<object | Problem> {
 
-    const challengeResponse = await this.fido2AuthenticateUC.login(email)
+    const challengeResponse = await this.fido2AuthenticateUC.generateAssertionOptions(email)
 
     if (challengeResponse instanceof Problem) {
       return { "error": "cannot login" }
@@ -43,9 +43,9 @@ export default class Fido2AuthnController {
     return challengeResponse
   }
 
-  public async loginChallenge(credentials: any): Promise<object | Problem> {
+  public async validateLoginAssertion(assertion: any): Promise<object | Problem> {
 
-    const status = await this.fido2AuthenticateUC.loginChallenge(credentials)
+    const status = await this.fido2AuthenticateUC.validateAssertion(assertion)
 
     if (status instanceof Problem) {
       return { "error": "cannot execute login challenge" }

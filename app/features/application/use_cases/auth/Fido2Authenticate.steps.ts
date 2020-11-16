@@ -26,7 +26,7 @@ When('requestRegister with email {string}', async (email: string) => {
         mockedUserRepository.object()
     )
 
-    rpResponse = await fido2Authenticate.requestRegister(email)
+    rpResponse = await fido2Authenticate.generateAttestationOptions(email)
     if (rpResponse instanceof Problem) {
         setProblem(rpResponse)
     }
@@ -51,7 +51,7 @@ When('register with attestation {string}', async (attestation: string) => {
         mockedUserRepository.object()
     )
 
-    rpResponse = await fido2Authenticate.register(JSON.parse(attestation))
+    rpResponse = await fido2Authenticate.validateAttestation(JSON.parse(attestation))
     if (rpResponse instanceof Problem) {
         setProblem(rpResponse)
     }
@@ -76,7 +76,7 @@ When('login with email {string}', async (email: string) => {
         mockedUserRepository.object()
     )
 
-    rpResponse = await fido2Authenticate.login(email)
+    rpResponse = await fido2Authenticate.generateAssertionOptions(email)
     if (rpResponse instanceof Problem) {
         setProblem(rpResponse)
     }
@@ -99,7 +99,7 @@ When('loginChallenge with assertion {string}', async (assertion: string) => {
         mockedUserRepository.object()
     )
 
-    rpResponse = await fido2Authenticate.loginChallenge(JSON.parse(assertion))
+    rpResponse = await fido2Authenticate.validateAssertion(JSON.parse(assertion))
     if (rpResponse instanceof Problem) {
         setProblem(rpResponse)
     }

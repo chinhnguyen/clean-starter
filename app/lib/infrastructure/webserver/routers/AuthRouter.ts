@@ -15,23 +15,23 @@ router.post('/authenticate', async (request: Request, response: Response) => {
 router.post('/request-register', async (request: Request, response: Response) => {
   const { email } = request.body
   const controller = resolve<Fido2AuthController>("fido2AuthController")
-  response.sendPromise(controller.requestRegister(email))
+  response.sendPromise(controller.generateRegisterChallenge(email))
 })
 
 router.post('/register', async (request: Request, response: Response) => {
   var credentials = request.body
   const controller = resolve<Fido2AuthController>("fido2AuthController")
-  response.sendPromise(controller.register(credentials))
+  response.sendPromise(controller.validateRegisterAttestation(credentials))
 })
 
 router.post('/login', async (request: Request, response: Response) => {
   const { email } = request.body
   const controller = resolve<Fido2AuthController>("fido2AuthController")
-  response.sendPromise(controller.login(email))
+  response.sendPromise(controller.generateLoginChallenge(email))
 })
 
 router.post('/login-challenge', async (request: Request, response: Response) => {
   var credentials = request.body
   const controller = resolve<Fido2AuthController>("fido2AuthController")
-  response.sendPromise(controller.loginChallenge(credentials))
+  response.sendPromise(controller.validateLoginAssertion(credentials))
 })
