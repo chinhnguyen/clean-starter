@@ -10,9 +10,9 @@ export class Container implements IContainer {
     })
     this.container.loadModules(
       [
-        "./dist/lib/interfaces/**/*.js",
-        "./dist/lib/application/use_cases/**/*.js",
-        "./dist/lib/interfaces/controllers/**/*.js"
+        "lib/interfaces/**/*.js",
+        //"lib/application/use_cases/**/*.js",
+        "lib/interfaces/controllers/**/*.js"
       ],
       {
         formatName: 'camelCase',

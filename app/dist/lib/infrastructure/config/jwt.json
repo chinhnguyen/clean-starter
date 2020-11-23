@@ -1,0 +1,10 @@
+{
+    "staging": {
+        "key": "5VRycwWs3pHjF3qQ",
+        "expiresIn": "2d"
+    },
+    "production": {
+        "host": "DhR8PT2N4wvmuQGm",
+        "expiresIn": "2d"
+    }
+}
