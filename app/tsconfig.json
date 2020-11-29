@@ -1,19 +1,17 @@
 {
   "compilerOptions": {
     "module": "commonjs",
+    "allowJs": true,
     "noImplicitAny": true,
     "removeComments": true,
     "preserveConstEnums": true,
     "sourceMap": true,
     "resolveJsonModule": true,
-    "target": "es6",
-    "lib": [
-      "es6"
-    ]
+    "outDir": "dist"
   },
   "include": [
     "**/*.ts",
-    "*.ts",
+    "*.ts"
   ],
   "exclude": [
     "node_modules"

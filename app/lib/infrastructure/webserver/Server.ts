@@ -15,6 +15,7 @@ const a = express()
 a.use(morgan('dev'))
 a.use(express.json())
 a.use(crossOrigin)
+
 // Setup routers
 routers.forEach(router => a.use(router))
 
