@@ -6,6 +6,7 @@ import { IUserRepository } from '../../../../lib/application/repositories/IUserR
 import Fido2Authenticate from '../../../../lib/application/use_cases/auth/Fido2Authenticate';
 import { Problem } from '../../../../lib/domain/entities/Problem';
 import { User } from '../../../../lib/domain/entities/User';
+import AuthnConfig from '../../../../lib/interfaces/config/AuthnConfig';
 import { setProblem } from '../../../shared/Problem.steps';
 
 let mockedWebAuthnUser: User
@@ -22,8 +23,13 @@ When('requestRegister with email {string}', async (email: string) => {
         .setup(i => i.create)
         .returns(() => mockedWebAuthnUser)
 
+    const authnConfig = new AuthnConfig()
+    authnConfig.enable2FAWithFido2 = false;
+    authnConfig.enablePasswordless = true;
+
     const fido2Authenticate = new Fido2Authenticate(
-        mockedUserRepository.object()
+        mockedUserRepository.object(),
+        authnConfig
     )
 
     rpResponse = await fido2Authenticate.generateAttestationOptions(email)
@@ -47,8 +53,13 @@ When('register with attestation {string}', async (attestation: string) => {
         .setup(i => i.addKeyToUser)
         .returns(() => { })
 
+    const authnConfig = new AuthnConfig()
+    authnConfig.enable2FAWithFido2 = false;
+    authnConfig.enablePasswordless = true;
+
     const fido2Authenticate = new Fido2Authenticate(
-        mockedUserRepository.object()
+        mockedUserRepository.object(),
+        authnConfig
     )
 
     rpResponse = await fido2Authenticate.validateAttestation(JSON.parse(attestation))
@@ -72,8 +83,13 @@ When('login with email {string}', async (email: string) => {
         .setup(i => i.updateUserChallenge)
         .returns(() => { })
 
+    const authnConfig = new AuthnConfig()
+    authnConfig.enable2FAWithFido2 = false;
+    authnConfig.enablePasswordless = true;
+
     const fido2Authenticate = new Fido2Authenticate(
-        mockedUserRepository.object()
+        mockedUserRepository.object(),
+        authnConfig
     )
 
     rpResponse = await fido2Authenticate.generateAssertionOptions(email)
@@ -95,8 +111,13 @@ When('loginChallenge with assertion {string}', async (assertion: string) => {
         .setup(i => i.loadByChallenge)
         .returns(() => mockedWebAuthnUser)
 
+    const authnConfig = new AuthnConfig()
+    authnConfig.enable2FAWithFido2 = false;
+    authnConfig.enablePasswordless = true;
+
     const fido2Authenticate = new Fido2Authenticate(
-        mockedUserRepository.object()
+        mockedUserRepository.object(),
+        authnConfig
     )
 
     rpResponse = await fido2Authenticate.validateAssertion(JSON.parse(assertion))

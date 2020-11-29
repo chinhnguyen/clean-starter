@@ -1,8 +1,8 @@
-//import { generateLoginChallenge, generateRegistrationChallenge, parseLoginRequest, parseRegisterRequest, verifyAuthenticatorAssertion } from "./../webauthn";
 import { generateLoginChallenge, generateRegistrationChallenge, parseLoginRequest, parseRegisterRequest, verifyAuthenticatorAssertion } from "@webauthn/server";
 import { isEmpty } from "lodash";
 import { isNullOrUndefined } from "util";
-import { MissingRequiredInputsProblem, Problem, UnauthorizedProblem } from "../../../domain/entities/Problem";
+import { ForbiddenProblem, MissingRequiredInputsProblem, Problem, UnauthorizedProblem } from "../../../domain/entities/Problem";
+import IAuthnConfig from "../../../interfaces/security/IAuthnConfig";
 import { IUserRepository } from "../../repositories/IUserRepository";
 
 /**
@@ -10,11 +10,14 @@ import { IUserRepository } from "../../repositories/IUserRepository";
  */
 export default class Fido2Authenticate {
   private readonly userRepository: IUserRepository
+  private readonly authnConfig: IAuthnConfig
 
   constructor(
-    userRepository: IUserRepository
+    userRepository: IUserRepository,
+    authnConfig: IAuthnConfig
   ) {
-    this.userRepository = userRepository
+    this.userRepository = userRepository,
+      this.authnConfig = authnConfig
   }
 
   /** 
@@ -23,10 +26,19 @@ export default class Fido2Authenticate {
   public async generateAttestationOptions(email: string): Promise<object | Problem> {
     // tslint:disable-next-line: possible-timing-attack
     if (isEmpty(email)) {
-      return new MissingRequiredInputsProblem
+      return new MissingRequiredInputsProblem({
+        detail: "missing username."
+      })
     }
+
+    if (this.authnConfig.enablePasswordless == false) {
+      return new ForbiddenProblem({
+        detail: "Passwordless authentication is not enabled."
+      })
+    }
+
     const attestationChallengeResponse = generateRegistrationChallenge({
-      relyingParty: { name: 'willbe.vn' },
+      relyingParty: { name: 'willbe.vn', id: "localhost" },
       user: { id: "webauthn_uuid", name: email }
     });
 
@@ -49,7 +61,7 @@ export default class Fido2Authenticate {
 
     if (isNullOrUndefined(challenge)) {
       return new UnauthorizedProblem({
-        detail: 'Invalid register request111'
+        detail: 'Invalid register request'
       })
     }
 

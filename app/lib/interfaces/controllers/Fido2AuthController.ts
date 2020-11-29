@@ -15,7 +15,7 @@ export default class Fido2AuthnController {
     const challengeResponse = await this.fido2AuthenticateUC.generateAttestationOptions(email)
 
     if (challengeResponse instanceof Problem) {
-      return { "error": "cannot generate challenge request" }
+      console.log("error: " + challengeResponse.detail)
     }
 
     return challengeResponse
@@ -26,7 +26,7 @@ export default class Fido2AuthnController {
     const status = await this.fido2AuthenticateUC.validateAttestation(attestation)
 
     if (status instanceof Problem) {
-      return { "error": "cannot register" }
+      console.log("error: " + status.detail)
     }
 
     return status
@@ -37,7 +37,7 @@ export default class Fido2AuthnController {
     const challengeResponse = await this.fido2AuthenticateUC.generateAssertionOptions(email)
 
     if (challengeResponse instanceof Problem) {
-      return { "error": "cannot login" }
+      console.log("error: " + challengeResponse.detail)
     }
 
     return challengeResponse
@@ -48,7 +48,7 @@ export default class Fido2AuthnController {
     const status = await this.fido2AuthenticateUC.validateAssertion(assertion)
 
     if (status instanceof Problem) {
-      return { "error": "cannot execute login challenge" }
+      console.log("error: " + status.detail)
     }
 
     return status
