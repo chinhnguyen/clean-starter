@@ -1,8 +1,4 @@
 {
-  "files.exclude": {
-    "app/**/*.js": true,
-    "app/**/*.js.map": true
-  },
   "editor.formatOnSave": true,
   "editor.formatOnPaste": true,
   "editor.codeActionsOnSave": {

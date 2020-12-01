@@ -1,4 +1,4 @@
 {
-    "enablePasswordless": false,
+    "enablePasswordless": true,
     "enable2FAWithFido2": true
 }
