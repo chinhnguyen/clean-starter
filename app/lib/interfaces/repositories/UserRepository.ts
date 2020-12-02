@@ -16,13 +16,6 @@ const tfaDemoUser = new User({
   challenge: ""
 })
 
-// const passwordlessDemoUser = new User({
-//   id: "passwordless-tester-id",
-//   email: "passwordless-tester@mel.ubc",
-//   challenge: ""
-// })
-
-//var webAuthenUser = new User({})
 var users:User[] = [upnUser, tfaDemoUser]; 
 
 export default class UserRepository implements IUserRepository {
@@ -41,8 +34,8 @@ export default class UserRepository implements IUserRepository {
   }
 
   public async addKeyToUser(user: User, key: Key): Promise<void> {
-    user.key = key
-    user.challenge = ""
+    user.key = key;
+    user.challenge = "";
   }
 
   public async loadByChallenge(challenge: string): Promise<User> {

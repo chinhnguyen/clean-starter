@@ -6,6 +6,7 @@ import IAuthnConfig from "../../../interfaces/security/IAuthnConfig";
 import { IUserRepository } from "../../repositories/IUserRepository";
 import { IJwtProvider } from "../../security/IJwtProvider";
 import { User } from "../../../domain/entities/User";
+import base64url from 'base64url';
 
 /**
  * Passwordless authentication with FIDO2 standard 
@@ -50,7 +51,7 @@ export default class Fido2Authenticate {
 
     const attestationChallengeResponse = generateRegistrationChallenge({
       relyingParty: { name: 'clean-starter', id: "localhost" },
-      user: { id: "webauthn_uuid", name: email }
+      user: { id: "webauthn_uuid", name: email },
     });
 
     let user = await this.userRepository.loadByEmail(email);
@@ -62,7 +63,7 @@ export default class Fido2Authenticate {
     }
   
     this.userRepository.updateUserChallenge(user, attestationChallengeResponse.challenge);
-
+    
     return attestationChallengeResponse
   }
 
@@ -91,18 +92,6 @@ export default class Fido2Authenticate {
     if (isNullOrUndefined(user)) {
       return new UnauthorizedProblem({
         detail: 'Invalid register request'
-      })
-    }
-
-    console.log("TESTING ... passwordless , user.key = " + user.key);
-    if (!isNullOrUndefined(user.key)){
-      console.log("TESTING ... user.key.publicKey = " + user.key.publicKey);
-      console.log("TESTING ... key.publicKey = " + key.publicKey);
-    }
-
-    if (!isNullOrUndefined(user.key) && (user.key.credID === key.credID)){
-      return new BadRequestProblem({
-        detail: 'Duplicated security device key registration'
       })
     }
 
