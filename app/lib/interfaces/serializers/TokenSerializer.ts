@@ -1,10 +1,11 @@
 
 export interface SerializedToken {
-  token: string
+  issuedToken: string
 }
 
 export default class TokenSerializer {
-  public serialize(token: string): SerializedToken {
-    return { token }
+  public serialize(token: object): SerializedToken {
+    var serializedToken = JSON.stringify(token)
+    return { "issuedToken": serializedToken}
   }
 }

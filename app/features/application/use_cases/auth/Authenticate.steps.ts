@@ -8,9 +8,11 @@ import { Problem } from '../../../../lib/domain/entities/Problem';
 import { User } from '../../../../lib/domain/entities/User';
 import JwtProvider from '../../../../lib/interfaces/security/JwtProvider';
 import { setProblem } from '../../../shared/Problem.steps';
+import AuthnConfig from '../../../../lib/interfaces/config/AuthnConfig';
+import Fido2Authenticate from '../../../../lib/application/use_cases/auth/Fido2Authenticate';
 
 let mockedLoadByEmailAndPasswordResult: User
-let authResponse: string | Problem
+let authResponse: object | Problem
 
 Given('invalid credential', () => {
     mockedLoadByEmailAndPasswordResult = undefined
@@ -29,9 +31,15 @@ When('authenticate with email {string} and password {string}', async (email: str
         key: '123',
         expiresIn: '2d'
     })
+    const authnConfig = new AuthnConfig()
+    authnConfig.enable2FAWithFido2 = false;
+    authnConfig.enablePasswordless = true;
+
     const authenticate = new Authenticate(
         mockedUserRepository.object(),
-        jwtProvider
+        authnConfig,
+        jwtProvider,
+        new Fido2Authenticate(mockedUserRepository.object(), authnConfig, jwtProvider)
     )
     authResponse = await authenticate.execute(email, password)
     if (authResponse instanceof Problem) {
@@ -39,8 +47,8 @@ When('authenticate with email {string} and password {string}', async (email: str
     }
 })
 
-Then('return token having id of {string}', (expectedId: string) => {
-    const token = <string>authResponse
+Then('return token having id of {string}', (expectedId: string) => {    
+    const token = (<{ token: string} >JSON.parse(JSON.stringify(authResponse))).token
     const encodedToken = token.split('.')[1]
     const buff = new Buffer(encodedToken, 'base64')
     const payload = buff.toString('ascii')

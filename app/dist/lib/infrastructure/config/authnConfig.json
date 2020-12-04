@@ -1,0 +1,4 @@
+{
+    "enablePasswordless": true,
+    "enable2FAWithFido2": true
+}

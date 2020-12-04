@@ -35,6 +35,6 @@ Scenario: login assertion validation request with invalid attestation
    Then return Unauthorized Problem
 
 Scenario: login assertion validation request with valid attestation
-   Given WebAuthNUser JSON '{"email":"any@email","challenge":"prior challenge","key":{"fmt":"packed","publicKey":"BKkFhmqKhNi0UHYSahvfO1KekEPhZWjC4pN1hYknr6g9pE5SJ5CYjquGmeNtbhAunw4lSTghCZs6Ul0/aiaWAaE=","counter":1,"credID":"Y668QqUn6nriHCUAXv990v8VhZbAOsMzYWx1PphMnlx1do6Fj0RIUoi9bPz7P7PYnBdC4ZhJvHpGpwXzEqRXMA=="}}'
+   Given WebAuthNUser JSON '{"id": "anyid", "email":"any@email","challenge":"prior challenge","key":{"fmt":"packed","publicKey":"BKkFhmqKhNi0UHYSahvfO1KekEPhZWjC4pN1hYknr6g9pE5SJ5CYjquGmeNtbhAunw4lSTghCZs6Ul0/aiaWAaE=","counter":1,"credID":"Y668QqUn6nriHCUAXv990v8VhZbAOsMzYWx1PphMnlx1do6Fj0RIUoi9bPz7P7PYnBdC4ZhJvHpGpwXzEqRXMA=="}}'
    When loginChallenge with assertion '{"rawId":"Y668QqUn6nriHCUAXv990v8VhZbAOsMzYWx1PphMnlx1do6Fj0RIUoi9bPz7P7PYnBdC4ZhJvHpGpwXzEqRXMA==","response":{"authenticatorData":"SZYN5YgOjGh0NBcPZHZgW4/krrmihjLHmVzzuoMdl2MFAAAABg==","signature":"MEUCIEODSt6P2MpgBnCQW+Fr/utVt6gmR9EY1l3aqlraTuB0AiEAuEk+yJsmuTiiFX7airIjKA5glpSCKHmGFDE6SGz1h9A=","userHandle":null,"clientDataJSON":"eyJ0eXBlIjoid2ViYXV0aG4uZ2V0IiwiY2hhbGxlbmdlIjoiUU5oVXZKWXJsNk9QU1ZVbzcxSXlIeHlQQlpmNkdUb05hWUhMdXJfUkJESSIsIm9yaWdpbiI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODA4MSIsImNyb3NzT3JpZ2luIjpmYWxzZX0="},"getClientExtensionResults":{},"id":"Y668QqUn6nriHCUAXv990v8VhZbAOsMzYWx1PphMnlx1do6Fj0RIUoi9bPz7P7PYnBdC4ZhJvHpGpwXzEqRXMA","type":"public-key"}' 
-   Then return true
+   Then return valid token

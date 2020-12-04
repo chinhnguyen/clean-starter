@@ -23,6 +23,7 @@
     "awilix": "^4.2.1",
     "aws-lambda": "^0.1.2",
     "aws-serverless-express": "^3.3.5",
+    "base64url": "^3.0.1",
     "body-parser": "^1.18.3",
     "cbor": "^5.0.1",
     "cors": "^2.8.5",

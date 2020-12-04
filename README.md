@@ -141,9 +141,51 @@ Feature: Authenticate user using token
     When resolve token "anything"
     Then return the matching user
 
-8 scenarios (8 passed)
-22 steps (22 passed)
-0m00.013s
+Feature: Fido2Authenticate user using hardware security key
+  This is to support passwordless authentication
+
+  Scenario: register challenge request with empty email
+    When requestRegister with email "" 
+    Then return Bad Request Problem
+
+  Scenario: register challenge request with any email
+    When requestRegister with email "any@email" 
+    Then return attestationoption having challenge not null and attestation is direct
+
+ Scenario: register attestation validation request with invalid attestation
+    Given WebAuthNUser JSON '{"id":"any-id","email":"any@email","challenge":"a challenge"}'
+    When register with attestation '{"rawI": "invalid attestation"}'
+    Then return Unauthorized Problem
+
+ Scenario: register attestation validation request with valid attestation
+    Given WebAuthNUser JSON '{"id":"any-id","email":"any@email","challenge":"a challenge"}'
+    When register with attestation '{"rawId":"L8GNu..NA==","response":{"attestationObject":"o2Nm..gSQ==","getAuthenticatorData":{},"getPublicKey":{},"getPublicKeyAlgorithm":{},"getTransports":{},"clientDataJSON":"eyJ0eXBl..lts":{},"id":"L8GNuxJ...xNA","type":"public-key"}'
+    Then return true
+
+Scenario: login request with empty email
+    Given WebAuthNUser JSON '{"id":"any-id","email":"any@email","challenge":"a challenge"}'
+    When login with email "" 
+    Then return Bad Request Problem
+
+Scenario: login request with any user with valid key
+   Given WebAuthNUser JSON '{"email":"any@email","challenge":"prior challenge","key":{"fmt":"packed","publicKey":"BKkF...aE=","counter":1,"credID":"Y668...qRXMA=="}}'
+   When login with email "any@email" 
+   Then return assertionOptions having different challenge than "prior challenge"
+ 
+Scenario: login assertion validation request with invalid attestation
+   Given WebAuthNUser JSON '{"email":"any@email","challenge":"prior challenge"}'
+   When loginChallenge with assertion '{"rawI": "invalid attestation"}' 
+   Then return Unauthorized Problem
+
+Scenario: login assertion validation request with valid attestation
+   Given WebAuthNUser JSON '{"id": "anyid", "email":"any@email","challenge":"prior challenge","key":{"fmt":"packed","publicKey":"BKkFhm...aE=","counter":1,"credID":"Y668QqUn...=="}}'
+   When loginChallenge with assertion '{"rawId":"Y668...A==","response":{"authenticatorData":"SZYN5Yg...g==","signature":"MEU...h9A=","userHandle":null,"clientDataJSON":"eyJ0eXB...X0="},"getClientExtensionResults":{},"id":"Y668QqUn...MA","type":"public-key"}' 
+   Then return valid token
+
+
+16 scenarios (16 passed)
+44 steps (44 passed)
+0m00.018s
 ```
 
 ### Run BDD test features with code coverage
@@ -154,15 +196,18 @@ Feature: Authenticate user using token
 ----------------------------|----------|----------|----------|----------|-------------------|
 File                        |  % Stmts | % Branch |  % Funcs |  % Lines | Uncovered Line #s |
 ----------------------------|----------|----------|----------|----------|-------------------|
-All files                   |       86 |      100 |    71.43 |       86 |                   |
- application/use_cases/auth |      100 |      100 |      100 |      100 |                   |
-  Authenticate.ts           |      100 |      100 |      100 |      100 |                   |
+All files                   |    82.67 |    64.71 |    95.65 |    81.67 |                   |
+ application/use_cases/auth |       80 |    81.82 |      100 |    79.45 |                   |
+  Authenticate.ts           |    86.67 |      100 |      100 |    85.71 |             50,53 |
+  Fido2Authenticate.ts      |    73.08 |    77.78 |      100 |    72.34 |... 21,133,152,168 |
   ResolveToken.ts           |      100 |      100 |      100 |      100 |                   |
- domain/entities            |    78.26 |      100 |    66.67 |    78.26 |                   |
-  Problem.ts                |    76.19 |      100 |     62.5 |    76.19 |    27,41,42,46,47 |
+ domain/entities            |    85.71 |    56.52 |      100 |    84.85 |                   |
+  Problem.ts                |    84.62 |    56.52 |      100 |    83.33 |    27,41,42,46,47 |
   User.ts                   |      100 |      100 |      100 |      100 |                   |
- interfaces/security        |    71.43 |      100 |    66.67 |    71.43 |                   |
-  JwtProvider.ts            |    71.43 |      100 |    66.67 |    71.43 |             20,23 |
+ interfaces/config          |      100 |      100 |      100 |      100 |                   |
+  AuthnConfig.ts            |      100 |      100 |      100 |      100 |                   |
+ interfaces/security        |       80 |      100 |       75 |       80 |                   |
+  JwtProvider.ts            |       80 |      100 |       75 |       80 |             20,23 |
 ----------------------------|----------|----------|----------|----------|-------------------|
 ```
 
@@ -288,6 +333,20 @@ export default class JwtConfig implements IJwtConfig {
 
 To deal with production environment append ```:prod``` to your script name, for example - to build for production environment run ```npm run build:prod``` or ```npm run install:prod```.
 
+### Authentication methods
+There are three authentication options as follows
+1. UPN authentication
+1. Multi-factor authentication, in which UPN is the primary authenticator and FIDO2 the second authenticator
+1. Passwordless authentication, using FIDO2 protocol
+
+The authentication methods are specified on an application-level configuration file named authnConfig.json. There are 2 settings as follows
+```typescript
+{
+    "enablePasswordless": true,
+    "enable2FAWithFido2": true
+}
+``` 
+
 ### AWS Resources Name
 
 Several resources are created during installation with format ```<package_name>-<environment>```
@@ -306,3 +365,5 @@ Several resources are created during installation with format ```<package_name>-
 1. CucumberJS - https://github.com/cucumber/cucumber-js 
 1. IstanbulJS - https://istanbul.js.org/
 1. AWS Serverless Express - https://github.com/awslabs/aws-serverless-express
+1. Introduction to WebAuthn API - https://herrjemand.medium.com/introduction-to-webauthn-api-5fd1fb46c285
+

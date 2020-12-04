@@ -1,41 +1,69 @@
-//import { generateLoginChallenge, generateRegistrationChallenge, parseLoginRequest, parseRegisterRequest, verifyAuthenticatorAssertion } from "./../webauthn";
 import { generateLoginChallenge, generateRegistrationChallenge, parseLoginRequest, parseRegisterRequest, verifyAuthenticatorAssertion } from "@webauthn/server";
 import { isEmpty } from "lodash";
 import { isNullOrUndefined } from "util";
-import { MissingRequiredInputsProblem, Problem, UnauthorizedProblem } from "../../../domain/entities/Problem";
+import { ForbiddenProblem, MissingRequiredInputsProblem, Problem, UnauthorizedProblem, BadRequestProblem } from "../../../domain/entities/Problem";
+import IAuthnConfig from "../../../interfaces/security/IAuthnConfig";
 import { IUserRepository } from "../../repositories/IUserRepository";
+import { IJwtProvider } from "../../security/IJwtProvider";
+import { User } from "../../../domain/entities/User";
+import base64url from 'base64url';
 
 /**
  * Passwordless authentication with FIDO2 standard 
  */
 export default class Fido2Authenticate {
   private readonly userRepository: IUserRepository
+  private readonly authnConfig: IAuthnConfig
+  private readonly jwtProvider: IJwtProvider
 
   constructor(
-    userRepository: IUserRepository
+    userRepository: IUserRepository,
+    authnConfig: IAuthnConfig,
+    jwtProvider: IJwtProvider
   ) {
-    this.userRepository = userRepository
+      this.userRepository = userRepository,
+      this.authnConfig = authnConfig,
+      this.jwtProvider = jwtProvider
   }
 
   /** 
    * Generate attestation options to challenge register request with passwordless authentication
   */
-  public async generateAttestationOptions(email: string): Promise<object | Problem> {
-    // tslint:disable-next-line: possible-timing-attack
-    if (isEmpty(email)) {
-      return new MissingRequiredInputsProblem
-    }
-    const attestationChallengeResponse = generateRegistrationChallenge({
-      relyingParty: { name: 'willbe.vn' },
-      user: { id: "webauthn_uuid", name: email }
-    });
-
-    const user = await this.userRepository.create(email, attestationChallengeResponse.challenge)
-    if (isNullOrUndefined(user)) {
-      return new UnauthorizedProblem({
-        detail: 'Invalid credential'
+  public async generateAttestationOptions(email: string, passwordless: boolean): Promise<object | Problem> {
+    if (passwordless && this.authnConfig.enablePasswordless == false) {
+      return new ForbiddenProblem({
+        detail: "Passwordless authentication is not enabled."
       })
     }
+
+    if (!passwordless && this.authnConfig.enable2FAWithFido2 == false) {
+      return new ForbiddenProblem({
+        detail: "Second authentication with FIDO 2 is not enabled."
+      })
+    }
+    
+    // tslint:disable-next-line: possible-timing-attack
+    if (isEmpty(email)) {
+      return new MissingRequiredInputsProblem({
+        detail: "missing username."
+      })
+    }
+
+    const attestationChallengeResponse = generateRegistrationChallenge({
+      relyingParty: { name: 'clean-starter', id: "localhost" },
+      user: { id: "webauthn_uuid", name: email },
+    });
+
+    let user = await this.userRepository.loadByEmail(email);
+
+    if (passwordless){
+      if (isNullOrUndefined(user)){
+        user = await this.userRepository.create(email, attestationChallengeResponse.challenge)
+      }
+    }
+  
+    this.userRepository.updateUserChallenge(user, attestationChallengeResponse.challenge);
+    
     return attestationChallengeResponse
   }
 
@@ -45,15 +73,21 @@ export default class Fido2Authenticate {
    * @returns: return true if the verification succeeded. Otherwise, return false
    */
   public async validateAttestation(attestation: any): Promise<object | Problem> {
+    if (this.authnConfig.enablePasswordless == false) {
+      return new ForbiddenProblem({
+        detail: "Passwordless authentication is not enabled."
+      })
+    }
+
     const { key, challenge } = parseRegisterRequest(attestation);
 
     if (isNullOrUndefined(challenge)) {
       return new UnauthorizedProblem({
-        detail: 'Invalid register request111'
+        detail: 'Invalid register request'
       })
     }
 
-    const user = this.userRepository.loadByChallenge(challenge);
+    const user = await this.userRepository.loadByChallenge(challenge);
 
     if (isNullOrUndefined(user)) {
       return new UnauthorizedProblem({
@@ -63,7 +97,7 @@ export default class Fido2Authenticate {
 
     this.userRepository.addKeyToUser(user, key);
 
-    return { loggedIn: true };
+    return { registerStatus: true };
   }
 
   /**
@@ -72,6 +106,12 @@ export default class Fido2Authenticate {
    * @returns: assertion option challenge
    */
   public async generateAssertionOptions(email: string): Promise<object | Problem> {
+    if (this.authnConfig.enablePasswordless == false) {
+      return new ForbiddenProblem({
+        detail: "Passwordless authentication is not enabled."
+      })
+    }
+
     // tslint:disable-next-line: possible-timing-attack
     if (isEmpty(email)) {
       return new MissingRequiredInputsProblem
@@ -80,7 +120,7 @@ export default class Fido2Authenticate {
     const user = await this.userRepository.loadByEmail(email)
     if (isNullOrUndefined(user)) {
       return new UnauthorizedProblem({
-        detail: 'Invalid credential'
+        detail: 'Invalid credentials'
       })
     }
 
@@ -97,6 +137,12 @@ export default class Fido2Authenticate {
     * @returns: return true if the verification succeeded. Otherwise, return false
     */
   public async validateAssertion(credentials: any): Promise<object | Problem> {
+    if (this.authnConfig.enablePasswordless == false) {
+      return new ForbiddenProblem({
+        detail: "Passwordless authentication is not enabled."
+      })
+    }
+
     const { challenge, keyId } = parseLoginRequest(credentials);
 
     if (isNullOrUndefined(challenge)) {
@@ -105,16 +151,20 @@ export default class Fido2Authenticate {
       })
     }
 
-    const user = this.userRepository.loadByChallenge(challenge);
+    const user = await this.userRepository.loadByChallenge(challenge);
 
-    if (isNullOrUndefined(user) || isNullOrUndefined((await user).key) || ((await user).key.credID !== keyId)) {
+    if (isNullOrUndefined(user) || isNullOrUndefined(user.key) || (user.key.credID !== keyId)) {
       return new UnauthorizedProblem({
         detail: 'Invalid login challenge request'
       })
     }
 
-    const result = verifyAuthenticatorAssertion(credentials, (await user).key);
+    const result = verifyAuthenticatorAssertion(credentials, user.key);
+    this.userRepository.updateUserChallenge(user, "");
 
-    return { loggedIn: result }
+    return {token: this.jwtProvider.generateToken({
+                          id: user.id
+                        }),
+            status: true}
   }
 }
