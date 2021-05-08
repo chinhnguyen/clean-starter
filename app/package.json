@@ -30,7 +30,7 @@
     "express": "^4.16.4",
     "jsonwebtoken": "^8.5.0",
     "jsrsasign": "^8.0.12",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.21",
     "moment": "^2.24.0",
     "morgan": "^1.9.1",
     "nodemon": "^1.18.10",
