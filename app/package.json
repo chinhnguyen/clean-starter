@@ -31,7 +31,7 @@
     "jsonwebtoken": "^8.5.0",
     "jsrsasign": "^8.0.12",
     "lodash": "^4.17.11",
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "morgan": "^1.9.1",
     "nodemon": "^1.18.10",
     "spdy": "^4.0.0"
