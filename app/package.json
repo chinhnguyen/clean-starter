@@ -27,7 +27,7 @@
     "body-parser": "^1.18.3",
     "cbor": "^5.0.1",
     "cors": "^2.8.5",
-    "express": "^4.16.4",
+    "express": "^4.17.3",
     "jsonwebtoken": "^8.5.0",
     "jsrsasign": "^8.0.12",
     "lodash": "^4.17.11",
