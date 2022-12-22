@@ -28,7 +28,7 @@
     "cbor": "^5.0.1",
     "cors": "^2.8.5",
     "express": "^4.16.4",
-    "jsonwebtoken": "^8.5.0",
+    "jsonwebtoken": "^9.0.0",
     "jsrsasign": "^8.0.12",
     "lodash": "^4.17.11",
     "moment": "^2.24.0",
